@@ -33,6 +33,9 @@ M_f = [1 0 0 0; -1/f 1 0 0; 0 0 1 0; 0 0 -1/f 1];
 % propagation matrix after lens
 M_d2 = [1 d2 0 0; 0 1 0 0; 0 0 1 d2; 0 0 0 1];
 
+% Initialize a counter for the ray index
+ray_index = 0;
+
 figure;
 hold on;
 xlabel('z (m)');
@@ -43,6 +46,9 @@ grid on;
 % loop over each point and each angle
 for i = points
     for theta_x = theta_x_range
+        % Increment ray index
+        ray_index = ray_index + 1;
+
         % initial ray vector
         ray_in = [i; theta_x; y; theta_y];
         
@@ -58,12 +64,18 @@ for i = points
             ray_out = ray_mid;
         end
 
-        % plot ray trajectory before lens
-        plot([0, d1], [ray_in(1), ray_mid(1)], 'LineWidth', 1.5);
+        if ray_index <= 8
+            color = 'b';
+        else
+            color = 'r';
+        end
 
-        % plot ray trajectory after lens if it passes through 
+        % plot ray trajectory before lens with color
+        plot([0, d1], [ray_in(1), ray_mid(1)], color, 'LineWidth', 1.5);
+
+        % plot ray trajectory after lens if it passes through with color 
         if abs(ray_mid(1)) <= r_lens
-            plot([d1, d1 + d2], [ray_mid(1), ray_out(1)], 'LineWidth', 1.5);
+            plot([d1, d1 + d2], [ray_mid(1), ray_out(1)], color, 'LineWidth', 1.5);
         end
     end
 end
