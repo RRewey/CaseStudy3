@@ -6,7 +6,7 @@ close all;
 load("lightField.mat");
 
 % distance for free-space propogation
-d = -.3; 
+d = -.36; 
 
 M_d = [1 d 0 0; 0 1 0 0; 0 0 1 d; 0 0 0 1];
 
