@@ -3,38 +3,58 @@ close all;
 
 load("lightField.mat");
 
-% lens system parameters
-d1 = -0.35;
-d2 = -0.1;
-f = 0.9;
+% focal length for lens
+f = 0.2;
 
-M_d1 = [1 d1 0 0; 0 1 0 0; 0 0 1 d1; 0 0 0 1];
+% lens matrix M_f
 M_f = [1 0 0 0; -1/f 1 0 0; 0 0 1 0; 0 0 -1/f 1];
+
+% d2 is second free-space propagation matrix (after the lens)
+d2 = 0.4; 
+
+% second free-space propagation matrix
 M_d2 = [1 d2 0 0; 0 1 0 0; 0 0 1 d2; 0 0 0 1];
 
-% subset of rays for visualization
-num_rays_to_plot = 1000; 
-subset_indices = round(linspace(1, size(rays, 2), num_rays_to_plot));
-
-figure;
-hold on;
-xlabel('z (m)');
-ylabel('x (m)');
-title('Ray Tracing in the Light Field');
-grid on;
+% transform the ray data
+rays_x = rays(1,:);
+rays_y = rays(3,:);
+rays_theta_x = rays(2,:); 
+rays_theta_y = rays(4,:);
 
 
-for i = subset_indices
-  
-    ray_in = rays(:, i);
+% Perform k-means clustering on rays_x
+num_clusters = 3;
+[idx, C] = kmeans(rays_x', num_clusters);
 
-    % apply transformations
-    ray_mid = M_d1 * ray_in;
-    ray_out = M_d2 * M_f * ray_mid;
+% Create separate matrices for each cluster
 
-    % plot the ray path before & after lens
-    plot([0, d1], [ray_in(1), ray_mid(1)], 'b'); % before lens
-    plot([d1, d1 + d2], [ray_mid(1), ray_out(1)], 'r'); % after lens
-end
+obj1 = rays(:,idx == 1);
+obj2 = rays(:,idx == 2);
+obj3 = rays(:,idx == 3);
 
-hold off;
+
+%propagating 
+obj1 =  M_d2 * M_f * obj1;
+obj2 =  M_d2 * M_f * obj2;
+obj3 =  M_d2 * M_f * obj3;
+
+
+width = 0.005; % sensor width
+Npixels = 175; % number of pixels
+
+% Create images for each cluster using rays2img
+img1 = rays2img(-1*obj1(1,:), obj1(3,:), width, Npixels);
+img2 = rays2img(-1*obj2(1,:), obj2(3,:), width, Npixels);
+img3 = rays2img(-1*obj3(1,:), obj3(3,:), width, Npixels);
+
+tiledlayout(1,3);
+
+nexttile;
+imshow(img1);
+
+nexttile;
+imshow(img2);
+
+nexttile;
+imshow(img3);
+
