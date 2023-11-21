@@ -51,10 +51,12 @@ tiledlayout(1,3);
 
 nexttile;
 imshow(img1);
+title('Avocado in Therapy');
 
 nexttile;
 imshow(img2);
+title('WashU Logo');
 
 nexttile;
 imshow(img3);
-
+title('Brookings Hall');
